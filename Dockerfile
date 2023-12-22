@@ -63,10 +63,18 @@ RUN git clone https://github.com/giordano/julia-on-ookami.git /app/julia-on-ooka
 RUN git clone https://github.com/JuliaIO/FileTypes.jl.git /app/FileTypes.jl
 RUN git clone https://github.com/vipsimage/vips.git /app/vips
 RUN git clone https://github.com/openbci-archive/OpenBCI_8bit.git /app/OpenBCI_8bit
-RUN git clone https://github.com/biaslab/RxInfer.jl.git /app/RxInfer.jl
-RUN git clone https://github.com/NiubilityDiu/BayesInferenceEEGBCI.git /app/BayesInferenceEEGBCI
-RUN git clone https://github.com/SuperBruceJia/EEG-BayesianCNN.git /app/EEG-BayesianCNN
-RUN git clone https://github.com/wildart/Evolutionary.jl.git /app/Evolutionary 
+# Add a script for handling git clone with retries
+COPY retry-git-clone.sh /usr/local/bin/retry-git-clone.sh
+RUN chmod +x /usr/local/bin/retry-git-clone.sh
+
+# Retry the git clone commands using the script
+RUN retry-git-clone.sh https://github.com/NiubilityDiu/BayesInferenceEEGBCI.git /app/BayesInferenceEEGBCI
+RUN retry-git-clone.sh https://github.com/SuperBruceJia/EEG-BayesianCNN.git /app/EEG-BayesianCNN
+RUN retry-git-clone.sh https://github.com/wildart/Evolutionary.jl.git /app/Evolutionary
+
+# ... other Dockerfile instructions
+
+
 # Copy Go application source
 COPY muse_dsp/ /app/go-app
 
